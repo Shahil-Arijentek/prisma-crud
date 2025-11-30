@@ -12,7 +12,7 @@ steps:
     entrypoint: npx
     args: ["prisma", "migrate", "deploy"]
     env:
-      - DATABASE_URL=postgresql://postgres:${_DB_PASSWORD}@/postgres?host=/cloudsql/${_CLOUDSQL_CONNECTION}&schema=public
+      - DATABASE_URL=postgresql://postgres:${_DB_PASSWORD}@35.244.8.252:5432/postgres?schema=public
 
   # Build the Docker image
   - name: gcr.io/cloud-builders/docker
