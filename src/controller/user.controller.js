@@ -10,8 +10,12 @@ export const createUser = async (req, res) => {
 }
 
 export const getUsers = async (req, res) => {
-  const users = await getUserService()
-  res.json(users)
+  try {
+    const users = await getUserService()
+    res.json(users)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 };
 
 export const updateUser = async (req, res) => {
