@@ -1,23 +1,20 @@
 steps:
+  # 1. Install Node dependencies
   - name: node:18
     entrypoint: npm
     args: ["install"]
     id: install
 
+  # 2. Start Cloud SQL Proxy v2 (run in background using &)
   - name: "gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.11.0"
-    entrypoint: /cloud-sql-proxy
+    entrypoint: sh
     args:
-      [
-        "${_CLOUDSQL_CONNECTION}",
-        "--address=0.0.0.0",
-        "--port=5432"
-      ]
-    background: true
+      - -c
+      - |
+        /cloud-sql-proxy ${_CLOUDSQL_CONNECTION} --port=5432 & 
+        sleep 5
 
-  - name: "busybox"
-    args: ["sh", "-c", "sleep 5"]
-
-
+  # 3. Run Prisma migration
   - name: node:18
     entrypoint: sh
     args:
@@ -27,6 +24,7 @@ steps:
     env:
       - DATABASE_URL=postgresql://postgres:${_DB_PASSWORD}@127.0.0.1:5432/postgres?schema=public&connect_timeout=60
 
+  # 4. Build the Docker image
   - name: gcr.io/cloud-builders/docker
     args:
       [
@@ -35,7 +33,7 @@ steps:
         "."
       ]
 
-
+  # 5. Push the Docker image
   - name: gcr.io/cloud-builders/docker
     args:
       [
@@ -43,7 +41,7 @@ steps:
         "${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA"
       ]
 
-
+  # 6. Deploy to Cloud Run
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: gcloud
     args:
@@ -54,8 +52,7 @@ steps:
         "--platform", "managed",
         "--allow-unauthenticated",
         "--add-cloudsql-instances", "${_CLOUDSQL_CONNECTION}",
-        "--set-env-vars",
-        "DATABASE_URL=postgresql://postgres:${_DB_PASSWORD}@localhost/postgres?host=/cloudsql/${_CLOUDSQL_CONNECTION}&schema=public"
+        "--set-env-vars", "DATABASE_URL=postgresql://postgres:${_DB_PASSWORD}@localhost/postgres?host=/cloudsql/${_CLOUDSQL_CONNECTION}&schema=public"
       ]
 
 options:
