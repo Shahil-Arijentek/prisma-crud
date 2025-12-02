@@ -8,24 +8,49 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  name      String
+  id        String    @id @default(uuid())
   email     String    @unique
-  age       Int?
-  createdAt DateTime  @default(now())
   password  String
+  name      String?
   products  Product[]
+  orders    Order[]
+  createdAt DateTime  @default(now())
 }
 
-
 model Product {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  price       Float
-  stock       Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  userId      Int?
-  user        User?     @relation(fields: [userId], references: [id])
+  id         String      @id @default(uuid())
+  name       String
+  price      Float
+  user       User        @relation(fields: [userId], references: [id])
+  userId     String
+  orderItems OrderItem[]
+  category   Category?   @relation(fields: [categoryId], references: [id])
+  categoryId String?
+  createdAt  DateTime    @default(now())
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  products Product[]
+}
+
+model Order {
+  id        String      @id @default(uuid())
+  user      User        @relation(fields: [userId], references: [id])
+  userId    String
+  items     OrderItem[]
+  status    String      @default("PENDING")
+  createdAt DateTime    @default(now())
+}
+
+model OrderItem {
+  id      String @id @default(uuid())
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  quantity Int @default(1)
 }

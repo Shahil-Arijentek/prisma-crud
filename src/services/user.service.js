@@ -5,14 +5,14 @@ export const createUserService = async (data)=>{
 }
 
 export const getUserService = async()=>{
-     return await prisma.user.findMany()
+  return await prisma.user.findMany()
 }
 
 export const updateUserService = async (id,data)=>{
-    return await prisma.user.update({
+  return await prisma.user.update({
         where:{id:Number(id)},
-        data
-    })
+    data
+  })
 }
 
 export const deleteUserService = async (id) => {
