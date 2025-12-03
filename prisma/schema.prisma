@@ -23,6 +23,7 @@ model Product {
   price      Float
   user       User?       @relation(fields: [userId], references: [id])
   userId     String?
+  stock   Int?
   orderItems OrderItem[]
   category   Category?   @relation(fields: [categoryId], references: [id])
   categoryId String?
