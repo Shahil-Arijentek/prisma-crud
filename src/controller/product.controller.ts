@@ -12,12 +12,12 @@ export const createProduct = async (req: Request, res: Response) => {
 
 export const getProducts = async (req: Request, res: Response) => {
     try {
-        const products = await getProductsService();
-        res.json(products);
+        const products = await getProductsService()
+        res.json(products)
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
-};
+}
 
 export const getProductById = async (req: Request, res: Response) => {
     try {
